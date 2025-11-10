@@ -54,6 +54,22 @@ requirements-dev.txt          # Development/testing dependencies
 
 > **Note:** The current scaffold emits JPEG frames over WebSockets for rapid prototyping. For production low-latency streaming, replace this mechanism with WebRTC (`aiortc`) or HLS.
 
+### Frontend Dashboard
+1. Install Node.js 18+ and pnpm/npm.
+2. Set up the dashboard:
+   ```bash
+   cd src/frontend
+   npm install
+   npm run dev
+   ```
+3. Env vars (via `.env`):
+   - `VITE_API_BASE_URL` (defaults to `http://localhost:8001`)
+   - `VITE_STREAM_BASE_URL` (defaults to websocket URL derived from API base)
+4. The UI provides:
+   - Session creation form (project/source/model).
+   - Session list with status polling and stop/remove controls.
+   - Live stream viewer and insight metadata feed.
+
 ### HoloLens Integration
 - Import `src/hololens/ViVSessionController.cs` into a Unity project configured with MRTK 3 and MixedReality-WebRTC (or Unity WebRTC).
 - Provide an implementation of the `IWebRTCClient` interface that pairs with the backend's signaling.
@@ -69,3 +85,4 @@ pytest
 - Replace the placeholder JPEG streaming with WebRTC for efficient transmission to the HoloLens.
 - Extend the AGUI connector with real authentication flows and insight schemas that match the production analyzer.
 - Add telemetry, observability, and CI/CD pipelines tailored to your deployment environment.
+- Fuse AGUI authentication and embed the ViV dashboard inside AGUI’s layout or kiosk mode for analysts.

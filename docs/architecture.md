@@ -99,3 +99,10 @@
 - Preferred protocol for HoloLens streaming (WebRTC vs. HLS vs. RTMP).
 - Model selection: should it reuse AGUI’s existing model registry or maintain an agent-specific catalog?
 
+### 10. Frontend Dashboard Overview
+- React + Vite + Tailwind SPA, hosted under `src/frontend`, provides ViV session lifecycle controls and monitoring.
+- Uses REST endpoints (`/viv/sessions`) via React Query for creation, status polling, and termination.
+- Consumes WebSocket stream `/viv/streams/{sessionId}` to render live video (JPEG placeholder) and insight metadata.
+- Shares authentication context with AGUI (OAuth token injection) and targets desktop/tablet form factors.
+- Detailed UX and component breakdown in `docs/frontend-architecture.md`.
+
