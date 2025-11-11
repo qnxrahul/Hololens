@@ -23,7 +23,7 @@ App
  │    ├─ SessionForm (project/source/model selection)
  │    └─ ActiveSessionList (status, stop buttons)
  ├─ MainPane
- │    ├─ StreamViewer (video canvas + overlay toggles)
+ │    ├─ StreamViewer (video canvas + overlay toggles + WebXR entry)
  │    └─ InsightSidebar
  │         ├─ MetadataFeed (scrolling list of inference events)
  │         └─ MetricsPanel (aggregated KPIs)
@@ -56,16 +56,22 @@ App
 - Stream fallback UI when WebSocket drops (auto retry with backoff).
 - Validation errors surfaced inline in `SessionForm`.
 
-### 7. Theming & Accessibility
+### 7. WebXR & Visualization
+- WebXR overlay (Three.js + `@react-three/xr`) renders the live stream on a floating plane for immersive review within Chrome/Edge with WebXR support.
+- JPEG frames from the backend update a Three.js texture each time the WebSocket delivers a new blob.
+- VR button (from `@react-three/xr`) launches XR sessions; gracefully degrades when `navigator.xr` is unavailable.
+- Future: replace MJPEG with WebRTC video texture to leverage GPU decoding inside XR scene.
+
+### 8. Theming & Accessibility
 - Dark theme by default to align with AGUI; Tailwind color tokens for custom branding.
 - Ensure WCAG AA contrast, focus states, keyboard shortcuts for session actions.
 
-### 8. Packaging & Deployment
+### 9. Packaging & Deployment
 - `src/frontend` houses Vite project, built to `dist/`.
 - Deploy as a static bundle behind AGUI nginx or served by FastAPI via `StaticFiles`.
 - CI step: `npm run build` + lint/test (`npm run test` reserved for future component tests).
 
-### 9. Future Enhancements
+### 10. Future Enhancements
 - Embed AGUI authentication flow (PKCE) directly.
 - Multi-session mosaic view (grid of video streams).
 - Time-synced playback controls with AGUI timelines.

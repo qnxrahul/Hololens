@@ -28,6 +28,7 @@ npm run dev
 ```
 - Opens dashboard on `http://localhost:5173`.
 - Hot reload when React components change.
+- Chrome users with WebXR hardware can open the immersive viewer via **Open WebXR**; ensure `chrome://flags/#webxr-incubations` is enabled for AR features if needed.
 
 ### 5. Production Build
 ```bash
@@ -45,6 +46,7 @@ npm run preview  # optional local smoke test
 - Ensure CORS on backend includes dashboard origin.
 - Embed dashboard into AGUI via iframe or reverse proxy for seamless analyst experience.
 - When migrating to WebRTC, extend `useWebSocketStream` to use `RTCPeerConnection` instead of binary JPEG frames; UI components are transport-agnostic.
+- WebXR scene currently streams MJPEG textures; upgrading to WebRTC will reduce latency and improve XR smoothness.
 
 ### 7. Testing & Linting
 ```bash

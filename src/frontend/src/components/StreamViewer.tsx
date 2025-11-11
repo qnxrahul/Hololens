@@ -1,10 +1,14 @@
+import { useState } from "react";
+
 import { useWebSocketStream } from "../hooks/useWebSocketStream";
+import XRViewer from "./XRViewer";
 
 interface StreamViewerProps {
   sessionId?: string;
 }
 
 function StreamViewer({ sessionId }: StreamViewerProps) {
+  const [xrOpen, setXrOpen] = useState(false);
   const { frameSrc, connection, error } = useWebSocketStream(sessionId);
 
   return (
@@ -14,9 +18,19 @@ function StreamViewer({ sessionId }: StreamViewerProps) {
           <h2 className="text-lg font-semibold text-white">Live Stream</h2>
           <p className="text-xs uppercase tracking-widest text-slate-500">Session {sessionId ?? "—"}</p>
         </div>
-        <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-300">
-          {connection}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-300">
+            {connection}
+          </span>
+          <button
+            type="button"
+            disabled={!frameSrc}
+            onClick={() => setXrOpen(true)}
+            className="rounded-md border border-brand px-3 py-1 text-xs font-semibold text-brand transition hover:bg-brand/20 disabled:cursor-not-allowed disabled:border-slate-700 disabled:text-slate-500"
+          >
+            Open WebXR
+          </button>
+        </div>
       </header>
       <div className="relative flex flex-1 items-center justify-center bg-slate-900">
         {!sessionId && (
@@ -38,6 +52,7 @@ function StreamViewer({ sessionId }: StreamViewerProps) {
           </div>
         )}
       </div>
+      {xrOpen && <XRViewer frameSrc={frameSrc} onClose={() => setXrOpen(false)} />}
     </div>
   );
 }

@@ -103,6 +103,7 @@
 - React + Vite + Tailwind SPA, hosted under `src/frontend`, provides ViV session lifecycle controls and monitoring.
 - Uses REST endpoints (`/viv/sessions`) via React Query for creation, status polling, and termination.
 - Consumes WebSocket stream `/viv/streams/{sessionId}` to render live video (JPEG placeholder) and insight metadata.
+- Offers optional WebXR immersive view (Chrome WebXR) via Three.js canvas that projects the video stream in 3D space.
 - Shares authentication context with AGUI (OAuth token injection) and targets desktop/tablet form factors.
 - Detailed UX and component breakdown in `docs/frontend-architecture.md`.
 

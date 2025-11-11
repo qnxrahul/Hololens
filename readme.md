@@ -7,6 +7,7 @@ This repository contains a scaffold for extending the [AGUI data analyzer](https
 - Pluggable inference orchestrator with a debug backend (grayscale) and hooks for ONNX/PyTorch models.
 - WebSocket stream for delivering augmented frames and metadata to AGUI clients and HoloLens.
 - Unity/MRTK scaffold (`ViVSessionController.cs`) for consuming ViV streams, rendering them in 3D, and sending voice/gesture commands.
+- React dashboard with WebXR support (Chrome) for immersive visualization alongside traditional 2D monitoring.
 - Documentation describing architecture, deployment, and open integration questions.
 
 ### Project Structure
@@ -68,7 +69,7 @@ requirements-dev.txt          # Development/testing dependencies
 4. The UI provides:
    - Session creation form (project/source/model).
    - Session list with status polling and stop/remove controls.
-   - Live stream viewer and insight metadata feed.
+   - Live stream viewer, Chrome WebXR immersive button, and insight metadata feed.
 
 ### HoloLens Integration
 - Import `src/hololens/ViVSessionController.cs` into a Unity project configured with MRTK 3 and MixedReality-WebRTC (or Unity WebRTC).
@@ -86,3 +87,4 @@ pytest
 - Extend the AGUI connector with real authentication flows and insight schemas that match the production analyzer.
 - Add telemetry, observability, and CI/CD pipelines tailored to your deployment environment.
 - Fuse AGUI authentication and embed the ViV dashboard inside AGUI’s layout or kiosk mode for analysts.
+- Evaluate WebXR ergonomics (depth cues, interaction) and consider porting to AR mode (`immersive-ar`) once Chrome flags stabilize.
