@@ -4,7 +4,7 @@ import logging
 import os
 
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .pipelines.video_in_video_agent import VideoInVideoAgent
 from .schemas.session import SessionCreate, SessionStatus
+from .schemas.media import MediaItem
 from .services.auth import JWKSAuthenticator, JWKSSettings
 from .services.agui_connector import AGUIConnector
 from .services.session_manager import ViVSessionManager
@@ -30,10 +31,6 @@ AUTH_ISSUER = os.environ.get("AUTH_ISSUER")
 STORAGE_ROOT = os.environ.get("STORAGE_ROOT", "/tmp/viv-media")
 STORAGE_BASE_URL = os.environ.get("STORAGE_BASE_URL", "/media")
 
-agui_connector = AGUIConnector(AGUI_BASE_URL, token=AGUI_TOKEN)
-video_agent = VideoInVideoAgent(agui_connector=agui_connector)
-session_manager = ViVSessionManager(video_agent)
-
 authenticator: Optional[JWKSAuthenticator] = None
 if AUTH_JWKS_URL:
     authenticator = JWKSAuthenticator(
@@ -43,6 +40,10 @@ if AUTH_JWKS_URL:
 storage_client = LocalStorageClient(
     LocalStorageSettings(root=Path(STORAGE_ROOT), base_url=STORAGE_BASE_URL)
 )
+
+agui_connector = AGUIConnector(AGUI_BASE_URL, token=AGUI_TOKEN)
+video_agent = VideoInVideoAgent(agui_connector=agui_connector, storage=storage_client)
+session_manager = ViVSessionManager(video_agent)
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -120,6 +121,17 @@ async def stop_session(session_id: str) -> dict[str, str]:
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     return {"status": "stopping"}
+
+
+@app.get(
+    "/viv/sessions/{session_id}/media",
+    response_model=List[MediaItem],
+    tags=["viv"],
+    dependencies=[Depends(require_user)],
+)
+async def list_session_media(session_id: str) -> List[MediaItem]:
+    entries = storage_client.list_media(f"{session_id}/")
+    return [MediaItem(**entry) for entry in entries]
 
 
 @app.websocket("/viv/streams/{session_id}")

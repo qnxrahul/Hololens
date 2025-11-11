@@ -39,3 +39,10 @@ export interface InsightEvent {
   model?: string;
   metadata: Record<string, unknown>;
 }
+
+export interface MediaItem {
+  path: string;
+  url: string;
+  size: number;
+  modified_at: string;
+}

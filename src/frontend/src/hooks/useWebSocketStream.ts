@@ -50,6 +50,7 @@ export function useWebSocketStream(sessionId?: string): StreamState {
                 session_id: string;
                 timestamp: string;
                 overlays: Array<{ model: string; metadata: Record<string, unknown> }>;
+                media_url?: string;
               };
               payload?.overlays?.forEach((overlay) => {
                 const insightEvent: InsightEvent = {
@@ -60,6 +61,14 @@ export function useWebSocketStream(sessionId?: string): StreamState {
                 };
                 pushEvent(insightEvent);
               });
+              if (payload?.media_url) {
+                pushEvent({
+                  session_id: payload.session_id ?? sessionId,
+                  timestamp: payload.timestamp ?? new Date().toISOString(),
+                  model: "media/snapshot",
+                  metadata: { url: payload.media_url },
+                });
+              }
             }
           } catch (err) {
             console.warn("Failed to parse metadata message", err);

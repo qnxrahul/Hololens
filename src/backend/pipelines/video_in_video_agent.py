@@ -13,6 +13,7 @@ from ..services.frame_ingestor import FrameIngestSettings, FrameIngestor
 from ..services.inference_orchestrator import GrayscaleDebugBackend, InferenceOrchestrator
 from ..services.insight_publisher import InsightPublisher
 from ..services.video_composer import VideoComposer
+from ..services.storage import LocalStorageClient
 from ..utils.encoding import encode_jpeg
 
 
@@ -33,12 +34,14 @@ class VideoInVideoAgent:
         agui_connector: AGUIConnector,
         orchestrator: Optional[InferenceOrchestrator] = None,
         composer: Optional[VideoComposer] = None,
+        storage: Optional[LocalStorageClient] = None,
     ) -> None:
         self._agui = agui_connector
         self._orchestrator = orchestrator or InferenceOrchestrator(
             backends=[GrayscaleDebugBackend()]
         )
         self._composer = composer or VideoComposer()
+        self._storage = storage
 
     async def run_session(
         self,
@@ -71,13 +74,17 @@ class VideoInVideoAgent:
                 overlays = self._orchestrator.infer(frame, model_requests=model_requests)
                 inset = self._select_inset_frame(frame, overlays["frames"])
                 composite = self._compose_frame(frame, inset, context.config)
+                encoded = encode_jpeg(composite)
                 payload = {
                     "session_id": context.session_id,
                     "timestamp": datetime.utcnow().isoformat(),
                     "overlays": overlays["overlays"],
                 }
+                if self._storage:
+                    relative_path = f"{context.session_id}/frames/frame_{frames_processed:06d}.jpg"
+                    self._storage.save_bytes(relative_path, encoded)
+                    payload["media_url"] = self._storage.build_url(relative_path)
                 await context.publisher.broadcast_metadata(payload)
-                encoded = encode_jpeg(composite)
                 await context.publisher.broadcast_frame(encoded)
 
                 if publish_insights:

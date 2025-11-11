@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -47,3 +48,23 @@ class LocalStorageClient:
         if not str(target).startswith(str(self._root.resolve())):
             return None
         return target
+
+    def list_media(self, prefix: str) -> List[Dict[str, Any]]:
+        base = (self._root / prefix).resolve()
+        if not str(base).startswith(str(self._root.resolve())):
+            return []
+        if not base.exists():
+            return []
+        items: List[Dict[str, Any]] = []
+        for path in sorted(p for p in base.rglob("*") if p.is_file()):
+            rel = path.relative_to(self._root).as_posix()
+            stat = path.stat()
+            items.append(
+                {
+                    "path": rel,
+                    "url": self.build_url(rel),
+                    "size": stat.st_size,
+                    "modified_at": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc),
+                }
+            )
+        return items

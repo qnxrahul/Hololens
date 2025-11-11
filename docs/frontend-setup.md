@@ -23,7 +23,7 @@ VITE_AUTH_TOKEN_KEY=viv_auth_token
 - `VITE_API_BASE_URL`: REST endpoints for session lifecycle.
 - `VITE_STREAM_BASE_URL`: WebSocket endpoint streaming JPEG frames/metadata (omit to auto-derive from window origin).
 - `VITE_AUTH_TOKEN_KEY`: Browser storage key for OAuth2 access tokens retrieved from the IdP login flow.
-- Use your IdP login (Keycloak) to write a bearer token into `localStorage` before accessing the dashboard; SPA automatically sends it on REST/WebSocket calls.
+- Use your IdP login (Keycloak) to write a bearer token into `localStorage` before accessing the dashboard; SPA automatically sends it on REST/WebSocket calls. You can also paste/clear the token via the dashboard’s **Auth Token** widget.
 
 ### 4. Development Workflow
 ```bash

@@ -6,6 +6,7 @@ This repository contains a scaffold for extending the [AGUI data analyzer](https
 - FastAPI backend orchestrating video ingestion, AI inference, and picture-in-picture composition.
 - Pluggable inference orchestrator with a debug backend (grayscale) and hooks for ONNX/PyTorch models.
 - WebSocket/WebRTC stream for delivering augmented frames and metadata to browser clients.
+- Local filesystem storage for ViV snapshots exposed via REST `/viv/sessions/{id}/media` and static `/media` serving.
 - React dashboard with WebXR support (Chrome/Edge) for immersive visualization alongside traditional 2D monitoring.
 - Documentation describing architecture, deployment, and open integration questions.
 
@@ -56,6 +57,10 @@ requirements-dev.txt          # Development/testing dependencies
    ```
    ws://localhost:8001/viv/streams/<session_id>
    ```
+7. Retrieve saved media snapshots:
+   ```bash
+   curl http://localhost:8001/viv/sessions/<session_id>/media
+   ```
 
 > **Note:** The current scaffold emits JPEG frames over WebSockets for rapid prototyping. For production low-latency streaming, replace this mechanism with WebRTC (`aiortc`) or HLS.
 
@@ -85,6 +90,7 @@ requirements-dev.txt          # Development/testing dependencies
 ```
 pytest
 ```
+- See `docs/testing.md` for detailed backend/frontend smoke test instructions.
 
 ### Next Steps
 - Implement real inference backends by integrating ONNX Runtime or PyTorch models inside `InferenceOrchestrator`.

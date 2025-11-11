@@ -54,6 +54,7 @@
    - Augmented frames and annotations published over WebRTC/DataChannel or HLS for low latency consumption.
     - WebXR client subscribes, displays the composited video, and visualizes metrics as holographic widgets.
     - User interactions (controllers, gaze-based selection, voice commands) travel back via WebSocket control channel to adjust the analysis (ROI, thresholds, model swap).
+    - Composite frames optionally persisted to local media storage and exposed via REST for later review or export.
 
 5. **Feedback Loop**  
    - AI insights persisted back into AGUI (events, derived datasets, timeline markers).

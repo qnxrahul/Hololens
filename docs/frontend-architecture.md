@@ -18,15 +18,16 @@
 ### 3. Component Layout
 ```
 App
- ├─ HeaderBar (branding, connection status)
+ ├─ HeaderBar (branding, connection status, WebXR readiness)
  ├─ SessionControls
+ │    ├─ TokenManager (paste/manage OAuth tokens)
  │    ├─ SessionForm (project/source/model selection)
  │    └─ ActiveSessionList (status, stop buttons)
  ├─ MainPane
  │    ├─ StreamViewer (video canvas + overlay toggles + WebXR entry)
  │    └─ InsightSidebar
  │         ├─ MetadataFeed (scrolling list of inference events)
- │         └─ MetricsPanel (aggregated KPIs)
+ │         └─ MediaGallery (saved snapshots & downloads)
  └─ Footer (latency stats, build version)
 ```
 
@@ -57,10 +58,11 @@ App
 - Validation errors surfaced inline in `SessionForm`.
 
 ### 7. WebXR & Visualization
-- WebXR overlay (Three.js + `@react-three/xr`) renders the live stream on a floating plane for immersive review within Chrome/Edge with WebXR support.
+- WebXR overlay (Three.js + `@react-three/xr`) renders the live stream on a floating plane for immersive review within Chrome/Edge with WebXR support. Header shows XR readiness via `navigator.xr.isSessionSupported`.
 - JPEG frames from the backend update a Three.js texture each time the WebSocket delivers a new blob.
 - VR button (from `@react-three/xr`) launches XR sessions; gracefully degrades when `navigator.xr` is unavailable.
 - Future: replace MJPEG with WebRTC video texture to leverage GPU decoding inside XR scene.
+- TokenManager stores tokens in localStorage and highlights auth status; MediaGallery polls `/viv/sessions/{id}/media` for downloads.
 
 ### 8. Theming & Accessibility
 - Dark theme by default to align with AGUI; Tailwind color tokens for custom branding.

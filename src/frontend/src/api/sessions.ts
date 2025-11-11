@@ -1,4 +1,4 @@
-import type { SessionCreatePayload, SessionStatus } from "../types/session";
+import type { MediaItem, SessionCreatePayload, SessionStatus } from "../types/session";
 import { apiClient } from "./client";
 
 export async function createSession(payload: SessionCreatePayload): Promise<SessionStatus> {
@@ -13,4 +13,9 @@ export async function getSessionStatus(sessionId: string): Promise<SessionStatus
 
 export async function stopSession(sessionId: string): Promise<void> {
   await apiClient.delete(`/viv/sessions/${sessionId}`);
+}
+
+export async function getSessionMedia(sessionId: string): Promise<MediaItem[]> {
+  const { data } = await apiClient.get<MediaItem[]>(`/viv/sessions/${sessionId}/media`);
+  return data;
 }
