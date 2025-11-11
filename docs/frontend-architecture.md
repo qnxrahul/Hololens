@@ -10,10 +10,10 @@
 - **Build Tool:** Vite for fast local iteration and optimized production bundles.
 - **UI Library:** Tailwind CSS (lightweight styling) + Headless UI components, keeping design AGUI-friendly.
 - **State/Data Layer:** TanStack Query (react-query) to manage REST interactions and cache session state.
+- **Auth Integration:** OAuth2/OIDC tokens issued by Keycloak/Authlib-compatible IdP; the dashboard injects bearer tokens into REST/WebSocket calls via local storage.
 - **Streaming:** 
   - Initial: Render MJPEG stream (JPEG frames over WebSocket) using `<img>` fed by a blob URL generated from incoming frames.
   - Upgrade path: Swap to WebRTC (using browser `RTCPeerConnection`) once backend signaling is ready.
-- **Auth Integration:** Reuse AGUI OAuth tokens stored in browser; attach to API requests via interceptors.
 
 ### 3. Component Layout
 ```

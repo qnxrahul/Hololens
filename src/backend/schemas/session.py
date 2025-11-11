@@ -43,7 +43,7 @@ class SessionCreate(BaseModel):
     )
     consumer_device_id: Optional[str] = Field(
         default=None,
-        description="Optional device identifier (e.g., HoloLens spatial anchor ID)",
+        description="Optional device identifier (e.g., WebXR session or room identifier)",
     )
     models: List[ModelConfig] = Field(
         default_factory=list,

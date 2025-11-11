@@ -4,6 +4,7 @@
 - Node.js 18 or later
 - pnpm or npm (v8+)
 - Running instance of the ViV FastAPI backend (`uvicorn src.backend.app:app`)
+- OAuth2 provider (e.g., Keycloak/Authentik) issuing tokens accepted by the backend
 
 ### 2. Installation
 ```bash
@@ -16,11 +17,13 @@ Create `.env` (or `.env.local`) in `src/frontend`:
 ```
 VITE_API_BASE_URL=http://localhost:8001
 VITE_STREAM_BASE_URL=ws://localhost:8001
+VITE_AUTH_TOKEN_KEY=viv_auth_token
 ```
 
 - `VITE_API_BASE_URL`: REST endpoints for session lifecycle.
 - `VITE_STREAM_BASE_URL`: WebSocket endpoint streaming JPEG frames/metadata (omit to auto-derive from window origin).
-- Reuse AGUI OAuth tokens by wiring them into Axios interceptors (e.g., read from `localStorage` and set `Authorization` header).
+- `VITE_AUTH_TOKEN_KEY`: Browser storage key for OAuth2 access tokens retrieved from the IdP login flow.
+- Use your IdP login (Keycloak) to write a bearer token into `localStorage` before accessing the dashboard; SPA automatically sends it on REST/WebSocket calls.
 
 ### 4. Development Workflow
 ```bash

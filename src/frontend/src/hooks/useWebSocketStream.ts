@@ -12,6 +12,7 @@ interface StreamState {
 const DEFAULT_WS_BASE =
   (typeof window !== "undefined" && window.location.origin.replace("http", "ws")) ||
   "ws://localhost:8001";
+const tokenStorageKey = import.meta.env.VITE_AUTH_TOKEN_KEY ?? "viv_auth_token";
 
 export function useWebSocketStream(sessionId?: string): StreamState {
   const [state, setState] = useState<StreamState>({ connection: "idle" });
@@ -25,8 +26,13 @@ export function useWebSocketStream(sessionId?: string): StreamState {
       return;
     }
 
-    const wsBase = import.meta.env.VITE_STREAM_BASE_URL ?? DEFAULT_WS_BASE;
-    const wsUrl = `${wsBase.replace(/\/$/, "")}/viv/streams/${sessionId}`;
+      const wsBase = import.meta.env.VITE_STREAM_BASE_URL ?? DEFAULT_WS_BASE;
+      const token = typeof window !== "undefined" ? localStorage.getItem(tokenStorageKey) : null;
+      const url = new URL(`${wsBase.replace(/\/$/, "")}/viv/streams/${sessionId}`);
+      if (token) {
+        url.searchParams.set("token", token);
+      }
+      const wsUrl = url.toString();
     setState({ connection: "connecting" });
 
     const ws = new WebSocket(wsUrl);
