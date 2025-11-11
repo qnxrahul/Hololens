@@ -17,6 +17,37 @@
 - **Post-meeting assets**: Generate recap package (summary, transcript excerpts, decisions, action items) stored in knowledge base with governed retention.
 
 ## System Architecture
+- **Architecture Diagram**
+
+```mermaid
+flowchart LR
+    Organizer[Organizer / Host] -->|Invites| Calendar[Calendar Platform]
+    Calendar -->|Schedules Clara| AgentService[Meeting Agent Service]
+    AgentService -->|Requests Prep Materials| ContextService[Context Service]
+    ContextUploader[Secure Upload Portal] --> ContextService
+    ContextService -->|Normalized Context| ContextStore[(Context Object Store)]
+    ContextService -->|Context Graph| AnalyticsOrchestrator[Analytics Orchestrator]
+
+    AgentService -->|Joins Meeting| Conferencing[Conferencing Platform]
+    Conferencing -->|Audio / Video / Screen| MediaPipeline[Media Pipeline]
+    MediaPipeline -->|Transcripts & Frames| AnalyticsOrchestrator
+
+    subgraph Analytics Tier
+        AnalyticsOrchestrator --> SubAgents[Sub-Agents & Tools]
+        SubAgents -->|Insights| AnalyticsOrchestrator
+    end
+
+    AnalyticsOrchestrator --> Canvas[Canvas & Experience Layer]
+    Canvas --> ParticipantsUI[Participant Companion UI]
+    ParticipantsUI -->|Queries / Feedback| AgentService
+
+    AnalyticsOrchestrator --> Governance[Data & Governance]
+    Governance --> Audit[Audit & Policy Logs]
+
+    AnalyticsOrchestrator --> Deliverables[Post-Meeting Deliverables]
+    Deliverables --> Integrations[CRM / Task / Knowledge Base]
+```
+
 - **Meeting Agent Service**
   - Calendar integration service (Microsoft Graph/Google Workspace).
   - Identity & consent management.
