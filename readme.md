@@ -7,6 +7,7 @@ This repository contains a scaffold for extending the [AGUI data analyzer](https
 - Pluggable inference orchestrator with a debug backend (grayscale) and hooks for ONNX/PyTorch models.
 - WebSocket/WebRTC stream for delivering augmented frames and metadata to browser clients.
 - Local filesystem storage for ViV snapshots exposed via REST `/viv/sessions/{id}/media` and static `/media` serving.
+- Meeting orchestration APIs to manage AI agents, meetings, context requests, AV monitoring, and analytics tool invocations.
 - React dashboard with WebXR support (Chrome/Edge) for immersive visualization alongside traditional 2D monitoring.
 - Documentation describing architecture, deployment, and open integration questions.
 
@@ -61,6 +62,22 @@ requirements-dev.txt          # Development/testing dependencies
    ```bash
    curl http://localhost:8001/viv/sessions/<session_id>/media
    ```
+8. Coordinate a meeting with Clara:
+   ```bash
+   curl -X POST http://localhost:8001/agents \
+     -H "Content-Type: application/json" \
+     -d '{"name":"Clara AI","email":"clara-ai-vX@kpmg.com","capabilities":["analytics","visualization"]}'
+   ```
+   ```bash
+   curl -X POST http://localhost:8001/meetings \
+     -H "Content-Type: application/json" \
+     -d '{"title":"Client Readout"}'
+   ```
+   - Add the agent to the meeting: `POST /meetings/{meeting_id}/participants?participant_type=agent&participant_id=<agent_id>`
+   - Ask for context: `POST /meetings/{meeting_id}/context/request`
+   - Attach email/text context: `POST /meetings/{meeting_id}/context`
+   - Start AV listening: `POST /meetings/{meeting_id}/av/start`
+   - Trigger analytics: `POST /meetings/{meeting_id}/tools/run`
 
 > **Note:** The current scaffold emits JPEG frames over WebSockets for rapid prototyping. For production low-latency streaming, replace this mechanism with WebRTC (`aiortc`) or HLS.
 

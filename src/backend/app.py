@@ -14,9 +14,19 @@ from fastapi.staticfiles import StaticFiles
 from .pipelines.video_in_video_agent import VideoInVideoAgent
 from .schemas.session import SessionCreate, SessionStatus
 from .schemas.media import MediaItem
+from .schemas.meeting import (
+    Agent,
+    AgentCreate,
+    Meeting,
+    MeetingContextAdd,
+    MeetingContextRequest,
+    MeetingCreate,
+    MeetingToolInvocation,
+)
 from .services.auth import JWKSAuthenticator, JWKSSettings
 from .services.agui_connector import AGUIConnector
 from .services.session_manager import ViVSessionManager
+from .services.meeting_manager import MeetingManager
 from .services.storage import LocalStorageClient, LocalStorageSettings
 
 logger = logging.getLogger(__name__)
@@ -44,6 +54,7 @@ storage_client = LocalStorageClient(
 agui_connector = AGUIConnector(AGUI_BASE_URL, token=AGUI_TOKEN)
 video_agent = VideoInVideoAgent(agui_connector=agui_connector, storage=storage_client)
 session_manager = ViVSessionManager(video_agent)
+meeting_manager = MeetingManager()
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -83,6 +94,96 @@ async def require_user(
 @app.get("/health", tags=["system"])
 async def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.post(
+    "/agents",
+    response_model=Agent,
+    tags=["meetings"],
+    dependencies=[Depends(require_user)],
+)
+async def create_agent(payload: AgentCreate) -> Agent:
+    return await meeting_manager.create_agent(payload)
+
+
+@app.post(
+    "/meetings",
+    response_model=Meeting,
+    tags=["meetings"],
+    dependencies=[Depends(require_user)],
+)
+async def create_meeting(payload: MeetingCreate) -> Meeting:
+    return await meeting_manager.create_meeting(payload)
+
+
+@app.post(
+    "/meetings/{meeting_id}/participants",
+    response_model=Meeting,
+    tags=["meetings"],
+    dependencies=[Depends(require_user)],
+)
+async def add_participant(
+    meeting_id: str,
+    participant_type: str,
+    participant_id: str,
+    display_name: Optional[str] = None,
+) -> Meeting:
+    return await meeting_manager.add_participant(
+        meeting_id,
+        participant_type=participant_type,
+        participant_id=participant_id,
+        display_name=display_name,
+    )
+
+
+@app.post(
+    "/meetings/{meeting_id}/context/request",
+    response_model=Meeting,
+    tags=["meetings"],
+    dependencies=[Depends(require_user)],
+)
+async def request_meeting_context(meeting_id: str, payload: MeetingContextRequest) -> Meeting:
+    return await meeting_manager.request_context(meeting_id, payload)
+
+
+@app.post(
+    "/meetings/{meeting_id}/context",
+    response_model=Meeting,
+    tags=["meetings"],
+    dependencies=[Depends(require_user)],
+)
+async def add_meeting_context(meeting_id: str, payload: MeetingContextAdd) -> Meeting:
+    return await meeting_manager.add_context(meeting_id, payload)
+
+
+@app.post(
+    "/meetings/{meeting_id}/av/start",
+    response_model=Meeting,
+    tags=["meetings"],
+    dependencies=[Depends(require_user)],
+)
+async def start_meeting_av(meeting_id: str) -> Meeting:
+    return await meeting_manager.start_av_listener(meeting_id)
+
+
+@app.post(
+    "/meetings/{meeting_id}/tools/run",
+    response_model=Meeting,
+    tags=["meetings"],
+    dependencies=[Depends(require_user)],
+)
+async def run_meeting_tool(meeting_id: str, payload: MeetingToolInvocation) -> Meeting:
+    return await meeting_manager.run_tool(meeting_id, payload)
+
+
+@app.get(
+    "/meetings/{meeting_id}",
+    response_model=Meeting,
+    tags=["meetings"],
+    dependencies=[Depends(require_user)],
+)
+async def get_meeting(meeting_id: str) -> Meeting:
+    return await meeting_manager.get_meeting(meeting_id)
 
 
 @app.post(

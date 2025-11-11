@@ -31,6 +31,7 @@
    - Runs the AI inference pipeline (object/action detection, segmentation, etc.).
    - Composites a secondary "insight video" onto the base stream (video-in-video) together with overlays (bounding boxes, heatmaps, metric HUD).
     - Streams the augmented output to subscribers (Web dashboard, WebXR immersive view).
+    - Hosts meeting orchestration APIs for agent creation, context collection, tool requests, and AV lifecycle events.
    - Persists derived analytics back into AGUI via its REST/gRPC endpoints.
 
 3. **WebXR Client**  
@@ -55,6 +56,7 @@
     - WebXR client subscribes, displays the composited video, and visualizes metrics as holographic widgets.
     - User interactions (controllers, gaze-based selection, voice commands) travel back via WebSocket control channel to adjust the analysis (ROI, thresholds, model swap).
     - Composite frames optionally persisted to local media storage and exposed via REST for later review or export.
+    - Agents can trigger meeting tool runs whose outputs are rendered into the collaborative canvas.
 
 5. **Feedback Loop**  
    - AI insights persisted back into AGUI (events, derived datasets, timeline markers).
@@ -70,6 +72,7 @@
 | `InsightPublisher`       | Stream video + metadata, expose REST for session control | FastAPI, WebRTC (aiortc) |
 | `WebXRClient`            | Render stream, manage spatial UI, relay user input | React, WebXR, Three.js |
 | `AGUIConnector`          | Auth, fetch datasets, push results | `requests`, websockets |
+| `MeetingManager`         | Manage agents, meeting lifecycle, context, and tool invocations | FastAPI, in-memory state (extensible to DB) |
 
 ### 5. Deployment Topologies
 
