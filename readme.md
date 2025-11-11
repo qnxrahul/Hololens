@@ -35,9 +35,8 @@ requirements-dev.txt          # Development/testing dependencies
    - `AGUI_TOKEN`: Bearer token for authenticating with AGUI (optional for unauthenticated setups).
    - `AUTH_JWKS_URL`: JWKS endpoint from your identity provider (Keycloak/Authentik) for token verification.
    - `AUTH_AUDIENCE` / `AUTH_ISSUER`: Expected audience and issuer values for OAuth2 access tokens.
-   - `STORAGE_ENDPOINT`: S3-compatible endpoint (omit for AWS S3).
-   - `STORAGE_ACCESS_KEY` / `STORAGE_SECRET_KEY`: Credentials for object storage (e.g., MinIO).
-   - `STORAGE_BUCKET`: Bucket to store ViV artifacts (recorded frames, exports).
+   - `STORAGE_ROOT`: Filesystem directory used for storing media assets (default `/tmp/viv-media`).
+   - `STORAGE_BASE_URL`: URL prefix where media is exposed (default `/media`).
 4. Launch the agent:
    ```bash
    uvicorn src.backend.app:app --host 0.0.0.0 --port 8001 --reload
@@ -94,5 +93,5 @@ pytest
 - Add telemetry, observability, and CI/CD pipelines tailored to your deployment environment.
 - Fuse AGUI authentication and embed the ViV dashboard inside AGUI’s layout or kiosk mode for analysts.
 - Evaluate WebXR ergonomics (depth cues, interaction) and consider porting to AR mode (`immersive-ar`) once Chrome flags stabilize.
-- Wire the agent to S3-compatible storage (MinIO, Ceph) for meeting artifacts and enable upload/download workflows through presigned URLs.
+- Extend storage workflows (versioning, cleanup) or swap in MinIO/Ceph when scaling beyond local filesystem.
 - Integrate a full OIDC login (Keycloak) flow in the SPA to mint and refresh tokens automatically.

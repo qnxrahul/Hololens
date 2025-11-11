@@ -2,59 +2,48 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional
-
-import boto3
-from botocore.client import Config as BotoConfig
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
-class ObjectStorageSettings:
-    endpoint_url: Optional[str]
-    access_key: str
-    secret_key: str
-    bucket_name: str
-    region_name: Optional[str] = None
-    signature_version: str = "s3v4"
-    use_ssl: bool = True
+class LocalStorageSettings:
+    root: Path
+    base_url: str = "/media"
 
 
-class ObjectStorageClient:
-    """Wrapper around S3-compatible storage such as MinIO or Ceph."""
+class LocalStorageClient:
+    """Simple filesystem-backed media storage for development and on-prem deployments."""
 
-    def __init__(self, settings: ObjectStorageSettings) -> None:
-        session = boto3.session.Session()
-        self._bucket = settings.bucket_name
-        self._client = session.client(
-            "s3",
-            aws_access_key_id=settings.access_key,
-            aws_secret_access_key=settings.secret_key,
-            endpoint_url=settings.endpoint_url,
-            region_name=settings.region_name,
-            use_ssl=settings.use_ssl,
-            config=BotoConfig(signature_version=settings.signature_version),
-        )
+    def __init__(self, settings: LocalStorageSettings) -> None:
+        self._root = settings.root
+        self._base_url = settings.base_url.rstrip("/")
+        self._root.mkdir(parents=True, exist_ok=True)
+        logger.info("Local storage using %s", self._root)
 
-    def ensure_bucket(self) -> None:
-        """Create the bucket if it does not exist."""
-        existing = self._client.list_buckets()
-        if any(bucket["Name"] == self._bucket for bucket in existing.get("Buckets", [])):
-            return
-        self._client.create_bucket(Bucket=self._bucket)
-        logger.info("Created object storage bucket %s", self._bucket)
+    def ensure_ready(self) -> None:
+        """Already handled in __init__; provided for interface parity."""
+        self._root.mkdir(parents=True, exist_ok=True)
 
-    def upload_file(self, key: str, data: bytes, *, content_type: str = "application/octet-stream") -> None:
-        self._client.put_object(Bucket=self._bucket, Key=key, Body=data, ContentType=content_type)
-        logger.debug("Uploaded object %s to bucket %s", key, self._bucket)
+    def save_bytes(self, relative_path: str, data: bytes) -> Path:
+        target = (self._root / relative_path).resolve()
+        if not str(target).startswith(str(self._root.resolve())):
+            raise ValueError("Attempt to write outside of storage root")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+        logger.debug("Saved media blob to %s", target)
+        return target
 
-    def generate_presigned_url(self, key: str, *, expires_in: int = 3600) -> str:
-        url = self._client.generate_presigned_url(
-            "get_object",
-            Params={"Bucket": self._bucket, "Key": key},
-            ExpiresIn=expires_in,
-        )
-        logger.debug("Generated presigned URL for %s", key)
-        return url
+    def build_url(self, relative_path: str) -> str:
+        safe_path = "/".join(part for part in Path(relative_path).parts if part not in {"..", ""})
+        return f"{self._base_url}/{safe_path}"
 
+    def resolve_path(self, relative_path: str) -> Optional[Path]:
+        target = (self._root / relative_path).resolve()
+        if not target.exists():
+            return None
+        if not str(target).startswith(str(self._root.resolve())):
+            return None
+        return target
